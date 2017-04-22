@@ -21,32 +21,65 @@ def controll_brightness(img, brightness):
     controlled_mat = np.around(controlled_array).astype(np.uint8)
     return controlled_mat
 
-def set_auto_thresh(img_path):
-    cv2.namedWindow('gray_image', cv2.WINDOW_AUTOSIZE)
-    cv2.namedWindow('thre_image', cv2.WINDOW_AUTOSIZE)
-    cv2.createTrackbar('brightness', 'gray_image', 0, 200, nothing)
-    cv2.createTrackbar('thresh', 'thre_image', 0, 255, nothing)
-    cv2.setTrackbarPos('brightness', 'gray_image', 100)
-    cv2.setTrackbarPos('thresh', 'thre_image', 100)
 
+def face_detection(img):
+    # color = (255, 255, 255)
+    cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
+    facerect = cascade.detectMultiScale(img, scaleFactor=1.1, minNeighbors=1, minSize=(1, 1))
+    if len(facerect) > 0:
+        rect = facerect[0]
+
+        return rect
+    else:
+        return []
+
+
+
+def get_mean_dev(img):
+    mean, stddev = cv2.meanStdDev(img)
+    print('mean brightness', mean[0])
+    print('dev brightness', stddev[0])
+
+
+
+def set_auto_thresh(img_path):
+    cv2.namedWindow('gray_image', cv2.WINDOW_NORMAL)
+    cv2.namedWindow('thre_image', cv2.WINDOW_NORMAL)
+    cv2.namedWindow('parameter', cv2.WINDOW_NORMAL)
+    cv2.createTrackbar('brightness', 'parameter', 0, 300, nothing)
+    cv2.createTrackbar('thresh', 'parameter', 0, 255, nothing)
+    cv2.setTrackbarPos('brightness', 'parameter', 100)
+    cv2.setTrackbarPos('thresh', 'parameter', 100)
     img_width = 400
     img_height = 500
     img_original = cv2.imread(img_path)
     img_original = cv2.resize(img_original, (img_width, img_height))
+    img_gray = cv2.cvtColor(img_original, cv2.COLOR_RGB2GRAY)
+    face_rect = face_detection(img_original)
+    if len(face_rect) > 0:
+        face_region = img_gray[face_rect[1]:face_rect[1] + face_rect[3], face_rect[0]:face_rect[0] + face_rect[2]]
+        get_mean_dev(face_region)
+    pre_brightness = 0
+    pre_thresh = 0
     while True:
-        brightness = cv2.getTrackbarPos('brightness', 'gray_image') / 100
-        thresh = cv2.getTrackbarPos('thresh', 'thre_image')
+        brightness = cv2.getTrackbarPos('brightness', 'parameter') / 100
+        if brightness != pre_brightness : print('brightness parameter: ', brightness)
+        pre_brightness = brightness
+        thresh = cv2.getTrackbarPos('thresh', 'parameter')
+        if thresh != pre_thresh : print('thresh : ', thresh)
+        pre_thresh = thresh
         img_gray = cv2.cvtColor(img_original, cv2.COLOR_RGB2GRAY)
         img_gray = controll_brightness(img_gray, brightness)
         ret, img_thre = cv2.threshold(img_gray, thresh, 255, cv2.THRESH_BINARY)
+        cv2.rectangle(img_gray, tuple(face_rect[0:2]), tuple(face_rect[0:2] + face_rect[2:4]), 255, thickness=2)
         cv2.imshow('gray_image', img_gray)
         cv2.imshow('thre_image', img_thre)
-        if cv2.waitKey(1) & 0xFF == ord('q') : break
+        if cv2.waitKey(100) & 0xFF == ord('q') : break
     cv2.destroyAllWindows()
 
 
 
 
 if __name__ == '__main__':
-    img_path = 'kiriyama.jpg'
+    img_path = './image/kiriyama4.jpg'
     set_auto_thresh(img_path)

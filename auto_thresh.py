@@ -47,7 +47,7 @@ def set_auto_thresh(img_path):
     cv2.namedWindow('thre_image', cv2.WINDOW_NORMAL)
     cv2.namedWindow('parameter', cv2.WINDOW_NORMAL)
     cv2.createTrackbar('brightness', 'parameter', 0, 300, nothing)
-    cv2.createTrackbar('thresh', 'parameter', 0, 255, nothing)
+    cv2.createTrakbar('thresh', 'parameter', 0, 255, nothing)
     cv2.setTrackbarPos('brightness', 'parameter', 100)
     cv2.setTrackbarPos('thresh', 'parameter', 100)
     img_width = 400
@@ -81,5 +81,5 @@ def set_auto_thresh(img_path):
 
 
 if __name__ == '__main__':
-    img_path = './image/kiriyama4.jpg'
+    img_path = './image/kiriyama2.jpg'
     set_auto_thresh(img_path)

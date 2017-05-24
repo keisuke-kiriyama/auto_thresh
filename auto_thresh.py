@@ -81,5 +81,5 @@ def set_auto_thresh(img_path):
 
 
 if __name__ == '__main__':
-    img_path = './image/kiriyama2.jpg'
+    img_path = '../member image/kiriyama2.jpg'
     set_auto_thresh(img_path)
